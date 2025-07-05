@@ -3,98 +3,85 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: #f0f0f0;
     font-family: Arial, sans-serif;
-    margin: 0;
 }
 
 .calculator {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
     padding: 20px;
-    width: 320px;
 }
 
-.display {
-    width: calc(100% - 20px);
+.calculator-screen {
+    width: 100%;
     height: 60px;
-    background-color: #e9ecef;
     border: none;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    padding: 0 10px;
+    background-color: #252525;
+    color: #fff;
     font-size: 2em;
     text-align: right;
-    color: #333;
+    padding-right: 10px;
     box-sizing: border-box;
+    margin-bottom: 15px;
+    border-radius: 5px;
 }
 
-.buttons {
+.calculator-keys {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
-.btn {
-    width: 100%;
+.calculator-keys button {
     height: 60px;
-    font-size: 1.5em;
+    background-color: #e0e0e0;
     border: none;
     border-radius: 5px;
+    font-size: 1.2em;
     cursor: pointer;
     transition: background-color 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-.btn.number, .btn.operator, .btn.clear, .btn.delete, .btn.equals {
-    background-color: #e0e0e0;
-    color: #333;
-}
-
-.btn.operator {
-    background-color: #ff9800;
-    color: white;
-}
-
-.btn.operator:hover {
-    background-color: #fb8c00;
-}
-
-.btn.equals {
-    background-color: #4CAF50;
-    color: white;
-    grid-column: span 2;
-}
-
-.btn.equals:hover {
-    background-color: #43a047;
-}
-
-.btn.clear {
-    background-color: #f44336;
-    color: white;
-}
-
-.btn.clear:hover {
-    background-color: #e53935;
-}
-
-.btn.delete {
-    background-color: #ffc107;
-    color: #333;
-}
-
-.btn.delete:hover {
-    background-color: #ffb300;
-}
-
-.btn.number:hover, .btn.clear:hover, .btn.delete:hover {
+.calculator-keys button:hover {
     background-color: #d0d0d0;
 }
 
-.btn.zero {
-    grid-column: span 2;
+.calculator-keys button.operator {
+    background-color: #f5923e;
+    color: #fff;
+}
+
+.calculator-keys button.operator:hover {
+    background-color: #e68533;
+}
+
+.calculator-keys button.equal-sign {
+    background-color: #2e86de;
+    color: #fff;
+    grid-column: span 2; /* ทำให้ปุ่มเท่ากับกินพื้นที่ 2 คอลัมน์ */
+}
+
+.calculator-keys button.equal-sign:hover {
+    background-color: #267ecb;
+}
+
+.calculator-keys button.all-clear {
+    background-color: #cc3333;
+    color: #fff;
+}
+
+.calculator-keys button.all-clear:hover {
+    background-color: #bb2222;
+}
+
+.calculator-keys button.decimal {
+    background-color: #e0e0e0;
+}
+
+.calculator-keys button.decimal:hover {
+    background-color: #d0d0d0;
 }

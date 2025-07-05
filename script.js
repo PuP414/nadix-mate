@@ -1,56 +1,131 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const display = document.querySelector('.display');
-    const buttons = document.querySelectorAll('.btn');
+const calculator = document.querySelector('.calculator');
+const calculatorScreen = document.querySelector('.calculator-screen');
+const keys = calculator.querySelector('.calculator-keys');
 
-    let currentInput = '';
-    let result = '';
+let displayValue = '0';
+let firstOperand = null;
+let operator = null;
+let waitingForSecondOperand = false;
 
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const buttonText = button.textContent;
+function updateDisplay() {
+    calculatorScreen.value = displayValue;
+}
 
-            if (button.classList.contains('number') || buttonText === '.') {
-                currentInput += buttonText;
-            } else if (button.classList.contains('operator')) {
-                if (buttonText === '^2') {
-                    currentInput += '**2';
-                } else if (buttonText === '^3') {
-                    currentInput += '**3';
-                } else if (buttonText === '√') {
-                    // Handle square root carefully: wrap the next number/expression in Math.sqrt()
-                    // This is a simplified approach, a more robust solution might involve parsing
-                    currentInput += 'Math.sqrt(';
-                } else {
-                    currentInput += buttonText;
-                }
-            } else if (button.classList.contains('clear')) {
-                currentInput = '';
-                result = '';
-            } else if (button.classList.contains('delete')) {
-                currentInput = currentInput.slice(0, -1);
-            } else if (button.classList.contains('equals')) {
-                try {
-                    // Replace 'Math.sqrt(' with actual Math.sqrt() calls that close
-                    // This is a quick fix for the simplified sqrt,
-                    // a full parser would be more robust for nested sqrt
-                    let expressionToEvaluate = currentInput.replace(/Math\.sqrt\(([^)]*)\)/g, (match, p1) => {
-                        try {
-                            return Math.sqrt(eval(p1));
-                        } catch (e) {
-                            throw new Error('Invalid sqrt expression');
-                        }
-                    });
+function inputDigit(digit) {
+    if (waitingForSecondOperand === true) {
+        displayValue = digit;
+        waitingForSecondOperand = false;
+    } else {
+        displayValue = displayValue === '0' ? digit : displayValue + digit;
+    }
+    updateDisplay();
+}
 
-                    // Handle expressions like 2**3, 5**2
-                    // Use eval cautiously as it can be a security risk with untrusted input
-                    result = eval(expressionToEvaluate);
-                    currentInput = result.toString();
-                } catch (e) {
-                    result = 'Error';
-                    currentInput = ''; // Clear input on error
-                }
+function inputDecimal(dot) {
+    if (waitingForSecondOperand === true) {
+        displayValue = '0.';
+        waitingForSecondOperand = false;
+        return;
+    }
+    if (!displayValue.includes(dot)) {
+        displayValue += dot;
+    }
+    updateDisplay();
+}
+
+function handleOperator(nextOperator) {
+    const inputValue = parseFloat(displayValue);
+
+    if (operator && waitingForSecondOperand) {
+        operator = nextOperator;
+        return;
+    }
+
+    if (firstOperand === null) {
+        firstOperand = inputValue;
+    } else if (operator) {
+        const result = performCalculation[operator](firstOperand, inputValue);
+        displayValue = String(result);
+        firstOperand = result;
+    }
+
+    waitingForSecondOperand = true;
+    operator = nextOperator;
+    updateDisplay();
+}
+
+const performCalculation = {
+    '/': (firstOperand, secondOperand) => firstOperand / secondOperand,
+    '*': (firstOperand, secondOperand) => firstOperand * secondOperand,
+    '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
+    '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
+    // เพิ่มฟังก์ชันยกกำลัง 2
+    '^2': (operand) => {
+        const result = operand * operand;
+        displayValue = String(result);
+        firstOperand = result;
+        return result;
+    },
+    // เพิ่มฟังก์ชันยกกำลัง 3
+    '^3': (operand) => {
+        const result = operand * operand * operand;
+        displayValue = String(result);
+        firstOperand = result;
+        return result;
+    },
+    // เพิ่มฟังก์ชันรากที่สอง (square root)
+    'sqrt': (operand) => {
+        if (operand < 0) {
+            return 'Error'; // ไม่สามารถหารากที่สองของจำนวนลบได้
+        }
+        const result = Math.sqrt(operand);
+        displayValue = String(result);
+        firstOperand = result;
+        return result;
+    },
+    '=': (firstOperand, secondOperand) => secondOperand // สำหรับการกดเท่ากับครั้งแรกหลังจากการคำนวณ
+};
+
+function resetCalculator() {
+    displayValue = '0';
+    firstOperand = null;
+    operator = null;
+    waitingForSecondOperand = false;
+    updateDisplay();
+}
+
+keys.addEventListener('click', (event) => {
+    const { target } = event;
+    if (!target.matches('button')) {
+        return;
+    }
+
+    if (target.classList.contains('operator')) {
+        // ตรวจสอบว่าเป็นปุ่มยกกำลัง 2, ยกกำลัง 3 หรือรากที่สอง
+        if (target.value === '^2' || target.value === '^3' || target.value === 'sqrt') {
+            const inputValue = parseFloat(displayValue);
+            if (!isNaN(inputValue)) {
+                performCalculation[target.value](inputValue);
+                operator = null; // รีเซ็ต operator หลังจากการคำนวณแบบ Unary
+                waitingForSecondOperand = true; // ตั้งค่าให้พร้อมรับตัวเลขใหม่
             }
-            display.value = currentInput || result; // Show current input or result
-        });
-    });
+        } else {
+            handleOperator(target.value);
+        }
+        return;
+    }
+
+    if (target.classList.contains('decimal')) {
+        inputDecimal(target.value);
+        return;
+    }
+
+    if (target.classList.contains('all-clear')) {
+        resetCalculator();
+        return;
+    }
+
+    inputDigit(target.value);
 });
+
+updateDisplay();
